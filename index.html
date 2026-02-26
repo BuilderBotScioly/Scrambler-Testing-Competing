@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scrambler (SciOly) Practice + Meet Tool</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header class="container">
+    <h1>Scrambler Tool</h1>
+    <p class="muted">Div B (2025–2026 / 2026 rules). Lower score is better.</p>
+  </header>
+
+  <main class="container">
+    <!-- AUTH -->
+    <section id="authCard" class="card">
+      <h2>Login (local-only)</h2>
+      <div class="grid2">
+        <div>
+          <label for="username">Username</label>
+          <input id="username" autocomplete="username" placeholder="team123" />
+        </div>
+        <div>
+          <label for="password">Password</label>
+          <input id="password" type="password" autocomplete="current-password" placeholder="••••••••" />
+        </div>
+      </div>
+
+      <div class="row">
+        <button id="btnLogin">Login</button>
+        <button id="btnSignup" class="secondary">Create account</button>
+      </div>
+
+      <p class="muted small">Accounts + data are stored on this device only.</p>
+      <p id="authMsg" class="msg"></p>
+    </section>
+
+    <!-- APP -->
+    <section id="app" class="hidden">
+      <section class="card">
+        <div class="row space">
+          <div>
+            <h2>Hi, <span id="who"></span></h2>
+            <p class="muted small">Practice runs + meet table save to this user (this browser).</p>
+          </div>
+          <div class="row">
+            <button id="btnLogout" class="secondary">Logout</button>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <button id="tabPractice" class="tab active">Practice</button>
+          <button id="tabMeet" class="tab">Meet</button>
+        </div>
+      </section>
+
+      <!-- ================= PRACTICE TAB ================= -->
+      <section id="practiceTab">
+        <section class="card">
+          <h3>8-Minute Event Timer (Practice)</h3>
+          <div class="timerRow">
+            <div class="timerFace">
+              <div id="pTimerDisplay" class="timerDisplay">08:00</div>
+              <div class="muted small" id="pTimerState">Ready</div>
+            </div>
+            <div class="timerButtons">
+              <button id="pTimerStart">Start</button>
+              <button id="pTimerPause" class="secondary">Pause</button>
+              <button id="pTimerResume" class="secondary">Resume</button>
+              <button id="pTimerRestart" class="danger">Restart</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>Run Recorder</h3>
+
+          <div class="grid3">
+            <div>
+              <label for="targetDistanceM">Track / Target Distance (m)</label>
+              <input id="targetDistanceM" type="number" step="0.01" min="0" placeholder="e.g., 8.50" />
+              <div class="muted small">Saved for practice tracking (not part of official score).</div>
+            </div>
+            <div>
+              <label for="vehicleDistanceCm">Vehicle Distance from Target (cm)</label>
+              <input id="vehicleDistanceCm" type="number" step="0.1" min="0" placeholder="e.g., 27.6" />
+            </div>
+            <div>
+              <label>Run Time (seconds) — up to 3, averaged</label>
+              <div class="grid3 tight">
+                <input id="runTimeS1" type="number" step="0.01" min="0" placeholder="t1" />
+                <input id="runTimeS2" type="number" step="0.01" min="0" placeholder="t2" />
+                <input id="runTimeS3" type="number" step="0.01" min="0" placeholder="t3" />
+              </div>
+              <div class="muted small">Average of filled-in times is used for scoring.</div>
+            </div>
+          </div>
+
+          <div class="grid3">
+            <div>
+              <label for="carAngleDeg">Car Angle (degrees)</label>
+              <input id="carAngleDeg" type="number" step="0.1" placeholder="e.g., 2.5" />
+            </div>
+            <div>
+              <label for="dialTurns">Dial Turns</label>
+              <input id="dialTurns" type="number" step="0.01" placeholder="e.g., 1.75" />
+            </div>
+            <div>
+              <label for="winds">Number of Winds</label>
+              <input id="winds" type="number" step="1" min="0" placeholder="e.g., 12" />
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div class="checkRow">
+              <input id="bucketBonus" type="checkbox" />
+              <label for="bucketBonus">Bucket Bonus earned (−100)</label>
+            </div>
+            <div class="checkRow">
+              <input id="failedRun" type="checkbox" />
+              <label for="failedRun">Failed Run (distance=2500, time=0)</label>
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div>
+              <label for="competitionViolation">Competition Violation (+150 if any)</label>
+              <select id="competitionViolation">
+                <option value="0" selected>No</option>
+                <option value="150">Yes</option>
+              </select>
+            </div>
+            <div>
+              <label for="constructionViolation">Construction Violation (+300 if any)</label>
+              <select id="constructionViolation">
+                <option value="0" selected>No</option>
+                <option value="300">Yes</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label for="notes">Notes</label>
+            <textarea id="notes" rows="3" placeholder="Anything you want to remember..."></textarea>
+          </div>
+
+          <div class="row space">
+            <div class="scoreBox">
+              <div class="muted small">Calculated Run Score</div>
+              <div id="scoreOut" class="scoreOut">—</div>
+              <div id="scoreBreakdown" class="muted small"></div>
+            </div>
+            <div class="row">
+              <button id="btnCalc" class="secondary">Calculate</button>
+              <button id="btnSave">Save Run</button>
+            </div>
+          </div>
+
+          <p id="runMsg" class="msg"></p>
+        </section>
+
+        <section class="card">
+          <div class="row space">
+            <h3>Saved Runs</h3>
+            <div class="row">
+              <button id="btnExportRuns" class="secondary">Export Runs CSV</button>
+              <button id="btnClearRuns" class="danger">Clear my runs</button>
+            </div>
+          </div>
+
+          <div class="tableWrap">
+            <table id="runsTable">
+              <thead>
+                <tr>
+                  <th>Date/Time</th>
+                  <th>Track m</th>
+                  <th>Dist cm</th>
+                  <th>t1</th><th>t2</th><th>t3</th>
+                  <th>Avg Time</th>
+                  <th>Bucket</th>
+                  <th>CV</th>
+                  <th>ConV</th>
+                  <th>Failed</th>
+                  <th>Angle°</th>
+                  <th>Turns</th>
+                  <th>Winds</th>
+                  <th>Score</th>
+                  <th>Notes</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="row space">
+            <h3>Graph</h3>
+            <div class="row">
+              <select id="chartMode">
+                <option value="scoreOverTime" selected>Score over time</option>
+                <option value="scoreVsDistance">Score vs distance (cm)</option>
+              </select>
+              <button id="btnExportChart" class="secondary">Export Graph CSV</button>
+            </div>
+          </div>
+          <canvas id="chart" height="120"></canvas>
+        </section>
+
+        <section class="card">
+          <div class="row space">
+            <h3>Practice Summary</h3>
+            <div class="row">
+              <button id="btnExportPractice" class="secondary">Export Summary CSV</button>
+            </div>
+          </div>
+
+          <div class="grid3">
+            <div>
+              <label for="filterTrackM">Filter: Track Distance (m)</label>
+              <input id="filterTrackM" type="number" step="0.01" min="0" placeholder="blank = all" />
+            </div>
+            <div>
+              <label for="filterToleranceM">Tolerance (± m)</label>
+              <input id="filterToleranceM" type="number" step="0.01" min="0" placeholder="optional" />
+            </div>
+            <div class="row" style="align-items:flex-end;">
+              <button id="btnApplyPractice" class="secondary" style="margin-top:28px;">Apply</button>
+            </div>
+          </div>
+
+          <div class="tableWrap" style="margin-top:12px;">
+            <table id="practiceTable">
+              <thead>
+                <tr>
+                  <th>Track m (group)</th>
+                  <th># Runs</th>
+                  <th>Avg Score</th>
+                  <th>Best Score</th>
+                  <th>Best Setup (avg score)</th>
+                  <th>Best Setup (single run)</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <p id="practiceMsg" class="msg"></p>
+        </section>
+      </section>
+
+      <!-- ================= MEET TAB ================= -->
+      <section id="meetTab" class="hidden">
+        <section class="card">
+          <h3>8-Minute Event Timer (Meet)</h3>
+          <div class="timerRow">
+            <div class="timerFace">
+              <div id="mTimerDisplay" class="timerDisplay">08:00</div>
+              <div class="muted small" id="mTimerState">Ready</div>
+            </div>
+            <div class="timerButtons">
+              <button id="mTimerStart">Start</button>
+              <button id="mTimerPause" class="secondary">Pause</button>
+              <button id="mTimerResume" class="secondary">Resume</button>
+              <button id="mTimerRestart" class="danger">Restart</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="row space">
+            <h3>Meet (Multiple Teams) — Calculated Scores</h3>
+            <div class="row">
+              <button id="btnAddTeam">Add team</button>
+              <button id="btnExportMeet" class="secondary">Export Meet CSV</button>
+              <button id="btnClearMeet" class="danger">Clear meet</button>
+            </div>
+          </div>
+
+          <p class="muted small">
+            For each run: enter distance (cm) + up to 3 times (averaged), plus bucket/penalties/failed.
+            Meet picks best-of-2 (lower) and adds +5000 if Not Impounded.
+          </p>
+
+          <div class="tableWrap">
+            <table id="meetTable">
+              <thead>
+                <tr>
+                  <th rowspan="2">Team</th>
+
+                  <th colspan="9">Run 1</th>
+                  <th colspan="9">Run 2</th>
+
+                  <th rowspan="2">Best-of-2</th>
+                  <th rowspan="2">Not Impounded (+5000)</th>
+                  <th rowspan="2">Final</th>
+                  <th rowspan="2"></th>
+                </tr>
+                <tr>
+                  <th>Dist</th><th>t1</th><th>t2</th><th>t3</th><th>Avg</th><th>Bucket</th><th>CV</th><th>ConV</th><th>Score</th>
+
+                  <th>Dist</th><th>t1</th><th>t2</th><th>t3</th><th>Avg</th><th>Bucket</th><th>CV</th><th>ConV</th><th>Score</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <p id="meetMsg" class="msg"></p>
+        </section>
+      </section>
+    </section>
+  </main>
+
+  <footer class="container muted small">Built for GitHub Pages • Local-only data</footer>
+  <script src="app.js"></script>
+</body>
+</html>
